@@ -251,12 +251,33 @@ controller:
   #   targetPort: 9010 (Optional: Use to explicitly set targetPort if different from port)
 
   # List of plugins to be install during Jenkins controller start
-  installPlugins:
-    - kubernetes:4186.v1d804571d5d4
-    - workflow-aggregator:596.v8c21c963d92d
-    - git:5.2.1
-    - configuration-as-code:1775.v810dc950b_514
+  controller:
+   installPlugins:
+     # Plugin de Kubernetes com versão relativamente recente
+     - kubernetes:4371.vb_33b_086d54a_1
+     # workflow aggregator — geralmente compatível
+     - workflow-aggregator:590.v6a_d052e5a_a_b_5
+     # Plugin de git + dependências atuais
+     - git:5.12.1
+     # Configuration as Code (versão atualizada pra satisfazer dependências)
+     - configuration-as-code:1985.vdda_32d0c4ea_b_
+     # Outros plugins que você cita ou que aparecem nos logs
+     - github-api:1.330-492.v3941a_032db_2a_
+     - pipeline-graph-analysis:245.v88f03631a_b_21
+     - junit:1355.v45e2ea_65863c
+     - echarts-api:6.0.0-1146.v5c8f3b_8f0573
+     - structs:353.v261ea_40a_80fb_
+     - apache-httpcomponents-client-4-api:4.5.14-269.vfa_2321039a_83
+     - workflow-cps:4183.v94b_6fd39da_c1
+     - ionicons-api:94.vcc3065403257
+     - commons-lang3-api:3.18.0-98.v3a_674c06072d
+     - display-url-api:2.217.va_6b_de84cc74b_
+     - script-security:1378.vf25626395f49
+     - branch-api:2.1253.v6e7f7519f710
+     - discord-notifier:241.v448b_ccd0c0d6
+     - workflow-api:1384.vdc05a_48f535f
 
+    
   # Set to false to download the minimum required version of all dependencies.
   installLatestPlugins: true
 
@@ -533,7 +554,7 @@ controller:
   # controller.hostAliases allows for adding entries to Pod /etc/hosts:
   # https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   hostAliases:
-  - ip: 172.21.0.50
+  - ip: 172.16.0.50
     hostnames:
       - gitea.localhost.com
   # - ip: 10.0.50.50

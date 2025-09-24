@@ -28,7 +28,7 @@ releases:
   namespace: jenkins
   createNamespace: true
   chart: jenkins/jenkins
-  version: 5.0.14
+  version: 5.8.91
   values:
     - values/jenkins/values.yaml
 
@@ -39,35 +39,3 @@ releases:
   version: 10.1.1
   values:
     - values/gitea/values.yaml
-
-- name: harbor
-  namespace: harbor
-  createNamespace: true
-  chart: harbor/harbor
-  version: 1.14.0
-  values:
-    - values/harbor/values.yaml
-
-- name: sonarqube
-  namespace: sonarqube
-  createNamespace: true
-  chart: sonarqube/sonarqube
-  version: 10.4.0+2288
-  values:
-    - values/sonarqube/values.yaml
-
-- name: argocd
-  namespace: argocd
-  createNamespace: true
-  chart: argo/argo-cd
-  version: 6.2.3
-  values:
-    - values/argocd/values.yaml
-
-- name: imagepullsecret-patcher
-  namespace: imagepullsecret-patcher
-  createNamespace: true
-  chart: empathyco/imagepullsecret-patcher
-  version: 1.0.0
-  values:
-    - values/imagepullsecret-patcher/values.yaml
