@@ -1,18 +1,19 @@
-
+# metallb-ipaddresspool.yaml
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: homelab-pool
+  name: first-pool
   namespace: metallb-system
 spec:
   addresses:
-  - 172.16.0.50-172.16.0.70
+  - 172.16.0.50-172.16.0.60
 ---
+# metallb-l2advertisement.yaml  
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: home-advertisement
+  name: example
   namespace: metallb-system
 spec:
   ipAddressPools:
-  - homelab-pool
+  - first-pool

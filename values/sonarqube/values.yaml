@@ -1,0 +1,260 @@
+# SonarQube Values - Corrigido
+deploymentType: "StatefulSet"
+replicaCount: 1
+revisionHistoryLimit: 10
+
+# Corrigido: edition sem aspas
+edition: community
+
+image:
+  repository: sonarqube
+  tag: 10.4.1-community  # Corrigido: tag fixa
+  pullPolicy: IfNotPresent
+
+securityContext:
+  fsGroup: 0
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 0
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop: ["ALL"]
+
+elasticsearch:
+  bootstrapChecks: true
+
+service:
+  type: ClusterIP
+  externalPort: 9000
+  internalPort: 9000
+  labels:
+  annotations: {}
+
+networkPolicy:
+  enabled: false
+
+sonarWebContext: ""
+
+nginx:
+  enabled: false
+
+ingress:
+  enabled: false
+  hosts:
+    - name: sonarqube.localhost.com
+  annotations: {}
+  ingressClassName: nginx
+  tls: []
+
+route:
+  enabled: false
+
+affinity: {}
+tolerations: []
+nodeSelector: {}
+hostAliases: []
+
+readinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  failureThreshold: 6
+  timeoutSeconds: 1
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  failureThreshold: 6
+  timeoutSeconds: 1
+
+startupProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 24
+  timeoutSeconds: 1
+
+initContainers:
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 0
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+  resources: {}
+
+extraInitContainers: {}
+extraContainers: []
+
+caCerts:
+  enabled: false
+  image: adoptopenjdk/openjdk11:alpine
+  secret: your-secret
+
+initSysctl:
+  enabled: true
+  vmMaxMapCount: 524288
+  fsFileMax: 131072
+  nofile: 131072
+  nproc: 8192
+  securityContext:
+    privileged: true
+    runAsUser: 0
+
+initFs:
+  enabled: true
+  securityContext:
+    privileged: false
+    runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+      add: ["CHOWN"]
+
+prometheusExporter:
+  enabled: false
+  version: "0.17.2"
+  noCheckCertificate: false
+  webBeanPort: 8000
+  ceBeanPort: 8001
+  config:
+    rules:
+      - pattern: ".*"
+
+prometheusMonitoring:
+  podMonitor:
+    enabled: false
+    namespace: "default"
+    interval: 30s
+
+plugins:
+  install: []
+  noCheckCertificate: false
+
+jvmOpts: ""
+jvmCeOpts: ""
+
+# Corrigido: senha de monitoramento
+monitoringPasscode: "admin_monitoring_pass_123"
+
+annotations: {}
+
+resources:
+  limits:
+    cpu: 800m
+    memory: 4Gi
+  requests:
+    cpu: 400m
+    memory: 2Gi
+
+# Corrigido: persistência habilitada
+persistence:
+  enabled: true
+  annotations: {}
+  storageClass: standard
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  uid: 1000
+  guid: 0
+  volumes: []
+  mounts: []
+
+emptyDir: {}
+
+# JDBC Overwrite desabilitado - usando PostgreSQL interno
+jdbcOverwrite:
+  enable: false
+
+# Corrigido: PostgreSQL com imagem atualizada
+postgresql:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: postgres
+    tag: "16.4"
+
+  auth:
+    username: "sonarUser"
+    password: "sonarPass"
+    database: "sonarDB"
+
+  primary:
+    extraEnvVars:
+      - name: POSTGRES_USER
+        value: "sonarUser"
+      - name: POSTGRES_PASSWORD
+        value: "sonarPass"
+      - name: POSTGRES_DB
+        value: "sonarDB"
+  
+  # Configuração primária
+  primary:
+    persistence:
+      enabled: true
+      accessMode: ReadWriteOnce
+      size: 20Gi
+      storageClass: standard
+    
+    resources:
+      limits:
+        cpu: 2
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+  
+  # Service
+  service:
+    ports:
+      postgresql: 5432
+  
+  # Security Context
+  securityContext:
+    enabled: true
+    fsGroup: 1001
+  
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+  
+  volumePermissions:
+    enabled: false
+  
+  shmVolume:
+    chmod:
+      enabled: false
+  
+  serviceAccount:
+    enabled: false
+
+podLabels: {}
+sonarqubeFolder: /opt/sonarqube
+
+tests:
+  image: ""
+  enabled: true
+  resources: {}
+
+serviceAccount:
+  create: false
+  annotations: {}
+
+extraConfig:
+  secrets: []
+  configmaps: []
+
+terminationGracePeriodSeconds: 60

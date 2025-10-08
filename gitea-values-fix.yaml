@@ -1,0 +1,57 @@
+# Desabilitar Redis Cluster (causa mais problemas que resolve)
+redis-cluster:
+  enabled: false
+
+# Usar Redis simples ao invés de cluster
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# Simplificar PostgreSQL - usar versão standalone
+postgresql-ha:
+  enabled: false
+
+postgresql:
+  enabled: true
+  auth:
+    username: gitea
+    password: giteapass
+    database: gitea
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Configuração do Gitea
+gitea:
+  admin:
+    username: gitea_admin
+    password: "r8sA8CPHD9!bt6d"
+    email: "admin@gitea.local"
+
+  config:
+    database:
+      DB_TYPE: postgres
+      HOST: gitea-postgresql:5432
+      NAME: gitea
+      USER: gitea
+      PASSWD: giteapass
+    
+    session:
+      PROVIDER: db
+    
+    cache:
+      ADAPTER: memory
+    
+    queue:
+      TYPE: level
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: standard

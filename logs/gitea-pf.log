@@ -1,0 +1,6 @@
+Forwarding from 0.0.0.0:3000 -> 3000
+Handling connection for 3000
+Handling connection for 3000
+E1003 13:33:47.148139  140151 portforward.go:413] an error occurred forwarding 3000 -> 3000: error forwarding port 3000 to pod 03ae5777ef89491160ff3c26495b633a30190c2f7d29a4ee4070d48448500310, uid : failed to execute portforward in network namespace "/var/run/netns/cni-abee506a-5e25-533d-1046-912edd862ecc": failed to connect to localhost:3000 inside namespace "03ae5777ef89491160ff3c26495b633a30190c2f7d29a4ee4070d48448500310", IPv4: dial tcp4 127.0.0.1:3000: connect: connection refused IPv6 dial tcp6 [::1]:3000: connect: connection refused 
+E1003 13:33:47.149027  140151 portforward.go:413] an error occurred forwarding 3000 -> 3000: error forwarding port 3000 to pod 03ae5777ef89491160ff3c26495b633a30190c2f7d29a4ee4070d48448500310, uid : failed to execute portforward in network namespace "/var/run/netns/cni-abee506a-5e25-533d-1046-912edd862ecc": failed to connect to localhost:3000 inside namespace "03ae5777ef89491160ff3c26495b633a30190c2f7d29a4ee4070d48448500310", IPv4: dial tcp4 127.0.0.1:3000: connect: connection refused IPv6 dial tcp6 [::1]:3000: connect: connection refused 
+error: lost connection to pod

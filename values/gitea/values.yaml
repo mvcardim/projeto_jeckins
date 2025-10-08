@@ -159,14 +159,13 @@ service:
 ## @extra ingress.apiVersion Specify APIVersion of ingress object. Mostly would only be used for argocd.
 ingress:
   enabled: true
-  # className: nginx
   className: nginx
   annotations:
     {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: gitea.localhost.com
+    - host: gitea.locahost.com
       paths:
         - path: /
           pathType: Prefix
@@ -399,8 +398,6 @@ gitea:
     server:
       SSH_PORT: 22 # rootful image
       SSH_LISTEN_PORT: 2222 # rootless image
-    webhook:
-      ALLOWED_HOST_LIST: jenkins.jenkins.svc.cluster.local
   #
   #  security:
   #    PASSWORD_COMPLEXITY: spec
@@ -488,7 +485,7 @@ gitea:
 ## @param redis-cluster.cluster.nodes Number of redis cluster master nodes
 ## @param redis-cluster.cluster.replicas Number of redis cluster master node replicas
 redis-cluster:
-  enabled: false
+  enabled: true
   usePassword: false
   cluster:
     nodes: 3 # default: 6
@@ -506,25 +503,24 @@ redis-cluster:
 ## @param postgresql-ha.pgpool.adminPassword pgpool adminPassword
 ## @param postgresql-ha.service.ports.postgresql postgresql service port (overrides `service.ports.postgresql`)
 ## @param postgresql-ha.primary.persistence.size PVC Storage Request for postgresql-ha volume
-postgresql-ha:
-  global:
-    postgresql:
-      database: gitea
-      password: gitea
-      username: gitea
-  enabled: true
-  postgresql:
-    repmgrPassword: changeme2
-    postgresPassword: changeme1
-    password: changeme4
-  pgpool:
-    adminPassword: changeme3
-  service:
-    ports:
-      postgresql: 5432
-  primary:
-    persistence:
-      size: 10Gi
+#postgresql-ha:
+#  global:
+#      database: gitea
+#      password: gitea
+#      username: gitea
+#  enabled: true
+#  postgresql:
+#    repmgrPassword: changeme2
+#    postgresPassword: changeme1
+#    password: changeme4
+#  pgpool:
+#    adminPassword: changeme3
+#  service:
+#    ports:
+#      postgresql: 5432
+#  primary:
+#    persistence:
+#      size: 10Gi
 
 ## @section PostgreSQL
 #
@@ -566,4 +562,3 @@ test:
 ## @param extraDeploy Array of extra objects to deploy with the release
 ##
 extraDeploy: []
-

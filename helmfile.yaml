@@ -39,3 +39,21 @@ releases:
   version: 10.1.1
   values:
     - values/gitea/values.yaml
+
+- name: harbor
+  namespace: harbor
+  createNamespace: true
+  chart: harbor/harbor
+  version: 1.18.0
+  values:
+    - values/harbor/values.yaml
+
+- name: sonarqube
+  namespace: sonarqube
+  createNamespace: true
+  chart: sonarqube/sonarqube
+  version: 10.3.0
+  values:
+    - values/sonarqube/values.yaml
+
+
