@@ -54,6 +54,8 @@ port-forward:
 	@echo "Port-forward Gitea iniciado na porta 3000"
 	@kubectl port-forward -n harbor svc/harbor-portal 8081:80 --address=0.0.0.0 > logs/harbor-pf.log 2>&1 &
 	@echo "Port-forward Harbor iniciado na porta 8081"
+	@kubectl port-forward -n sonarqube svc/sonarqube-sonarqube 9000:9000 --address=0.0.0.0 > logs/sonarqube-pf.log 2>&1 &
+	@echo "Port-forward sonarqube iniciado na porta 9000"
 	@sleep 2
 	@$(MAKE) status
 

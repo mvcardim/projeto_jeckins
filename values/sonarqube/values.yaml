@@ -1,14 +1,18 @@
-# SonarQube Values - Corrigido
+# ============================================
+# SonarQube - Configuração LAB Simplificada
+# ============================================
+
 deploymentType: "StatefulSet"
 replicaCount: 1
 revisionHistoryLimit: 10
 
-# Corrigido: edition sem aspas
-edition: community
+# Configuração Community Build
+community:
+  enabled: true
 
 image:
   repository: sonarqube
-  tag: 10.4.1-community  # Corrigido: tag fixa
+  tag: 10.5.1-community
   pullPolicy: IfNotPresent
 
 securityContext:
@@ -31,37 +35,91 @@ service:
   type: ClusterIP
   externalPort: 9000
   internalPort: 9000
-  labels:
-  annotations: {}
 
-networkPolicy:
-  enabled: false
+# ======================================================
+# PostgreSQL INTEGRADO (habilitado para LAB)
+# ======================================================
+postgresql:
+  enabled: true
+  auth:
+    username: sonarUser
+    password: sonarPass
+    database: sonarDB
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
 
+# ======================================================
+# Configuração de conexão JDBC (aponta para PostgreSQL interno)
+# ======================================================
+jdbcOverwrite:
+  enable: true
+  jdbcUrl: "jdbc:postgresql://sonarqube-postgresql:5432/sonarDB"
+  jdbcUsername: "sonarUser"
+  jdbcPassword: "sonarPass"
+
+# ======================================================
+# Persistência do SonarQube
+# ======================================================
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+# Volumes adicionais para extensões e plugins
+sonarqubeFolder: /opt/sonarqube
 sonarWebContext: ""
 
+# ======================================================
+# Recursos
+# ======================================================
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 2Gi
+
+# JVM options
+jvmOpts: "-Xmx3072m -Xms1024m"
+jvmCeOpts: "-Xmx512m -Xms128m"
+
+# ======================================================
+# Ingress (para acesso via nginx-ingress)
+# ======================================================
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations: {}
+  hosts:
+    - name: sonarqube.localhost.com
+      path: /
+      pathType: Prefix
+  tls: []
+
+# ======================================================
+# Nginx desabilitado (usaremos ingress)
+# ======================================================
 nginx:
   enabled: false
 
-ingress:
-  enabled: false
-  hosts:
-    - name: sonarqube.localhost.com
-  annotations: {}
-  ingressClassName: nginx
-  tls: []
-
-route:
-  enabled: false
-
-affinity: {}
-tolerations: []
-nodeSelector: {}
-hostAliases: []
-
-readinessProbe:
-  initialDelaySeconds: 60
-  periodSeconds: 30
-  failureThreshold: 6
+# ======================================================
+# Health Checks
+# ======================================================
+startupProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 24
   timeoutSeconds: 1
 
 livenessProbe:
@@ -70,191 +128,37 @@ livenessProbe:
   failureThreshold: 6
   timeoutSeconds: 1
 
-startupProbe:
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  failureThreshold: 24
+readinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  failureThreshold: 6
   timeoutSeconds: 1
 
-initContainers:
-  securityContext:
-    allowPrivilegeEscalation: false
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 0
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop: ["ALL"]
-  resources: {}
+terminationGracePeriodSeconds: 60
 
-extraInitContainers: {}
-extraContainers: []
+# ======================================================
+# Configurações adicionais
+# ======================================================
 
-caCerts:
-  enabled: false
-  image: adoptopenjdk/openjdk11:alpine
-  secret: your-secret
-
-initSysctl:
-  enabled: true
-  vmMaxMapCount: 524288
-  fsFileMax: 131072
-  nofile: 131072
-  nproc: 8192
-  securityContext:
-    privileged: true
-    runAsUser: 0
-
-initFs:
-  enabled: true
-  securityContext:
-    privileged: false
-    runAsNonRoot: false
-    runAsUser: 0
-    runAsGroup: 0
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop: ["ALL"]
-      add: ["CHOWN"]
+# Monitoring passcode (obrigatório)
+monitoringPasscode: "define_monitoring_password"
 
 prometheusExporter:
   enabled: false
-  version: "0.17.2"
-  noCheckCertificate: false
-  webBeanPort: 8000
-  ceBeanPort: 8001
-  config:
-    rules:
-      - pattern: ".*"
-
-prometheusMonitoring:
-  podMonitor:
-    enabled: false
-    namespace: "default"
-    interval: 30s
-
-plugins:
-  install: []
-  noCheckCertificate: false
-
-jvmOpts: ""
-jvmCeOpts: ""
-
-# Corrigido: senha de monitoramento
-monitoringPasscode: "admin_monitoring_pass_123"
-
-annotations: {}
-
-resources:
-  limits:
-    cpu: 800m
-    memory: 4Gi
-  requests:
-    cpu: 400m
-    memory: 2Gi
-
-# Corrigido: persistência habilitada
-persistence:
-  enabled: true
-  annotations: {}
-  storageClass: standard
-  accessMode: ReadWriteOnce
-  size: 10Gi
-  uid: 1000
-  guid: 0
-  volumes: []
-  mounts: []
-
-emptyDir: {}
-
-# JDBC Overwrite desabilitado - usando PostgreSQL interno
-jdbcOverwrite:
-  enable: false
-
-# Corrigido: PostgreSQL com imagem atualizada
-postgresql:
-  enabled: true
-  image:
-    registry: docker.io
-    repository: postgres
-    tag: "16.4"
-
-  auth:
-    username: "sonarUser"
-    password: "sonarPass"
-    database: "sonarDB"
-
-  primary:
-    extraEnvVars:
-      - name: POSTGRES_USER
-        value: "sonarUser"
-      - name: POSTGRES_PASSWORD
-        value: "sonarPass"
-      - name: POSTGRES_DB
-        value: "sonarDB"
-  
-  # Configuração primária
-  primary:
-    persistence:
-      enabled: true
-      accessMode: ReadWriteOnce
-      size: 20Gi
-      storageClass: standard
-    
-    resources:
-      limits:
-        cpu: 2
-        memory: 2Gi
-      requests:
-        cpu: 100m
-        memory: 200Mi
-  
-  # Service
-  service:
-    ports:
-      postgresql: 5432
-  
-  # Security Context
-  securityContext:
-    enabled: true
-    fsGroup: 1001
-  
-  containerSecurityContext:
-    enabled: true
-    runAsUser: 1001
-    allowPrivilegeEscalation: false
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop: ["ALL"]
-  
-  volumePermissions:
-    enabled: false
-  
-  shmVolume:
-    chmod:
-      enabled: false
-  
-  serviceAccount:
-    enabled: false
-
-podLabels: {}
-sonarqubeFolder: /opt/sonarqube
 
 tests:
-  image: ""
-  enabled: true
-  resources: {}
+  enabled: false
 
 serviceAccount:
   create: false
-  annotations: {}
 
-extraConfig:
-  secrets: []
-  configmaps: []
+# Plugins (opcional)
+plugins:
+  install: []
+  # - "https://github.com/repo/plugin.jar"
 
-terminationGracePeriodSeconds: 60
+# Environment variables extras
+extraEnv: []
+
+# Init containers extras
+extraInitContainers: []
