@@ -27,7 +27,7 @@ controller:
   image:
     registry: "docker.io"
     repository: "jenkins/jenkins"
-    # tag: "2.440.1-jdk17"
+    tag: "2.504.2-lts-rhel-ubi9-jdk17"
     tagLabel: jdk17
     pullPolicy: "Always"
   imagePullSecretName:
@@ -52,7 +52,7 @@ controller:
   # you should revert controller.admin.username to your preferred admin user:
   admin:
     username: "admin"
-    # password: <defaults to random>
+    #password: "5lsig9C8p0IHBl9wkuJ2oO"
 
     userKey: jenkins-admin-user
     passwordKey: jenkins-admin-password

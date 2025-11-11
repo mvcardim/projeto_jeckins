@@ -1,19 +1,47 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
-- role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
-- role: worker
-- role: worker
-containerdConfigPatches:
-  - |-
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."harbor.localhost.com"]
-      endpoint = ["https://harbor.localhost.com"]
-    [plugins."io.containerd.grpc.v1.cri".registry.configs]
-      [plugins."io.containerd.grpc.v1.cri".registry.configs."harbor.localhost.com".tls]
-        insecure_skip_verify = true
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: KubeletConfiguration
+        systemReserved:
+          cpu: 100m
+          memory: 100Mi
+    extraMounts:
+      - hostPath: /home/marco/kind/control-plane-data
+        containerPath: /data
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: KubeletConfiguration
+        systemReserved:
+          cpu: 100m
+          memory: 100Mi
+    extraMounts:
+      - hostPath: /home/marco/kind/worker1-data
+        containerPath: /data
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: KubeletConfiguration
+        systemReserved:
+          cpu: 100m
+          memory: 100Mi
+    extraMounts:
+      - hostPath: /home/marco/kind/worker2-data
+        containerPath: /data
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: KubeletConfiguration
+        systemReserved:
+          cpu: 100m
+          memory: 100Mi
+    extraMounts:
+      - hostPath: /home/marco/kind/worker3-data
+        containerPath: /data
+
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"

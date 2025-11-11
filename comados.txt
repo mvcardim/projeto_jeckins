@@ -1,0 +1,64 @@
+# ==============================
+# PODS
+# ==============================
+kubectl get pods -n <namespace>           # Listar pods no namespace
+kubectl get pods -A                        # Listar todos os pods
+kubectl describe pod <pod-name> -n <namespace>   # Detalhes do pod (eventos, containers, volumes)
+kubectl logs <pod-name> -n <namespace>              # Logs do container padrão
+kubectl logs <pod-name> -n <namespace> -c <container> # Logs de um container específico
+kubectl logs -f <pod-name> -n <namespace>           # Logs em tempo real
+kubectl logs -n <namespace> -l app=<label> -f      # Logs de todos os pods com label
+kubectl get events -n gitea --sort-by='.lastTimestamp'
+
+# ==============================
+# DEPLOYMENTS / STATEFULSETS
+# ==============================
+kubectl get deploy -n <namespace>                  # Listar deployments
+kubectl rollout status deploy/<deployment-name> -n <namespace>   # Status rollout
+kubectl describe deploy <deployment-name> -n <namespace>        # Detalhes do deployment
+kubectl delete pod -n <namespace> -l app=<label>                # Reinicia pods controlados por deployment
+
+# ==============================
+# SERVICES / ENDPOINTS / REDE
+# ==============================
+kubectl get svc -n <namespace>                     # Listar services
+kubectl describe svc <service-name> -n <namespace> # Detalhes do service e endpoints
+kubectl get endpoints -n <namespace>              # Ver quais pods o service aponta
+kubectl exec -it <pod> -n <namespace> -- ping <service>                 # Testar rede
+kubectl exec -it <pod> -n <namespace> -- curl http://<service>:<port>   # Testar HTTP
+kubectl exec -it <pod> -n <namespace> -- nc -vz <service> <port>        # Testar TCP
+
+# ==============================
+# VOLUMES / PERSISTÊNCIA
+# ==============================
+kubectl get pvc -n <namespace>                     # Listar PersistentVolumeClaims
+kubectl describe pvc <pvc-name> -n <namespace>    # Detalhes do PVC
+kubectl get pv                                     # Listar PersistentVolumes
+kubectl describe pv <pv-name>                      # Detalhes do PV
+
+# ==============================
+# CONFIGMAPS / SECRETS
+# ==============================
+kubectl get configmap -n <namespace>              
+kubectl describe configmap <configmap-name> -n <namespace>
+kubectl get secret -n <namespace>                 
+kubectl describe secret <secret-name> -n <namespace>
+kubectl get secret <secret-name> -n <namespace> -o yaml  # Conteúdo codificado
+
+# ==============================
+# EVENTOS / NODES
+# ==============================
+kubectl get events -n <namespace> --sort-by='.metadata.creationTimestamp'  # Eventos recentes
+kubectl get nodes                               # Listar nodes
+kubectl describe node <node-name>              # Problemas de recursos, taints, tolerations
+
+# ==============================
+# ROLLBACK / DEBUG
+# ==============================
+kubectl rollout undo deploy/<deployment-name> -n <namespace> # Reverter rollout
+kubectl exec -it <pod> -n <namespace> -- /bin/sh           # Entrar no pod para debug
+#restart dos containers:
+docker restart kind-control-plane kind-worker kind-worker2 kind-worker3
+sleep 30
+kubectl get nodes
+kubectl get pods -n kube-system

@@ -1,19 +1,19 @@
-# metallb-ipaddresspool.yaml
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: first-pool
+  name: kind-pool
   namespace: metallb-system
 spec:
   addresses:
-  - 172.16.0.50-172.16.0.60
+  # IPs válidos dentro da rede Docker do KIND
+  - 172.18.255.200-172.18.255.250
+
 ---
-# metallb-l2advertisement.yaml  
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: example
+  name: kind-advertisement
   namespace: metallb-system
 spec:
   ipAddressPools:
-  - first-pool
+  - kind-pool

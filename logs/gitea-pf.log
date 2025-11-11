@@ -1,6 +1,6 @@
-Unable to listen on port 3000: ListenHandling connection for 3000
+Forwarding from 0.0.0.0:3000 -> 3000
 Handling connection for 3000
 Handling connection for 3000
 Handling connection for 3000
 Handling connection for 3000
-unable to listen on any of the requested ports: [{3000 3000}]
+Handling connection for 3000

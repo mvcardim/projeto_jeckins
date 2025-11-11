@@ -1,37 +1,27 @@
 global:
-  imageRegistry: ""
-  imagePullSecrets: []
-  storageClass: ""
-  hostAliases: []
+  security:
+    allowInsecureImages: true
 
 replicaCount: 1
 
 image:
-  registry: ""
   repository: gitea/gitea
-  tag: ""
+  tag: "1.21.11"
   pullPolicy: IfNotPresent
-  rootless: true
-
-podSecurityContext:
-  fsGroup: 1000
-
-containerSecurityContext: {}
 
 service:
   http:
-    type: ClusterIP
+    type: LoadBalancer
     port: 3000
-    clusterIP: None
   ssh:
-    type: ClusterIP
+    type: LoadBalancer
     port: 22
-    clusterIP: None
+    annotations: {}
+    labels: {}
 
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
   hosts:
     - host: gitea.localhost.com
       paths:
@@ -40,80 +30,94 @@ ingress:
   tls: []
 
 resources:
-  limits:
-    cpu: 1000m
-    memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
-
-deployment:
-  env: []
-  terminationGracePeriodSeconds: 60
-
-serviceAccount:
-  create: false
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
 
 persistence:
   enabled: true
-  size: 10Gi
+  size: 5Gi
   accessModes:
     - ReadWriteOnce
-  storageClass: ""
+  storageClass: standard
+  mountPath: /data
 
-gitea:
-  admin:
-    username: gitea_admin
-    password: "SenhaForte123!"
-    email: "admin@gitea.local"
-
-  config:
-    server:
-      SSH_PORT: 22
-      SSH_LISTEN_PORT: 2222
-      DOMAIN: gitea.localhost.com
-      ROOT_URL: http://gitea.localhost.com
-
-  livenessProbe:
-    enabled: true
-    tcpSocket:
-      port: http
-    initialDelaySeconds: 200
-    periodSeconds: 10
-    failureThreshold: 10
-
-  readinessProbe:
-    enabled: true
-    tcpSocket:
-      port: http
-    initialDelaySeconds: 5
-    periodSeconds: 10
-    failureThreshold: 3
-
-# ============================================
-# CONFIGURAÇÃO SIMPLES PARA LAB
-# ============================================
-
-# Redis Cluster: DESABILITADO (não necessário para lab)
-redis-cluster:
-  enabled: false
-
-# PostgreSQL HA: DESABILITADO (não necessário para lab)
+# ⚙️ Apenas um banco ativo
 postgresql-ha:
   enabled: false
 
-# PostgreSQL Standalone: HABILITADO (perfeito para lab)
 postgresql:
   enabled: true
+  image:
+    registry: docker.io
+    repository: library/postgres
+    tag: "16-alpine"
   auth:
     username: gitea
-    password: gitea
+    password: gitea_password_123
     database: gitea
   primary:
     persistence:
       enabled: true
-      size: 5Gi
+      size: 10Gi
+      storageClass: standard
+  service:
+    ports:
+      postgresql: 5432
 
-checkDeprecation: true
-test:
+# ⚙️ Desabilitar Redis Cluster e manter Redis simples
+redis-cluster:
   enabled: false
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: standard
+
+gitea:
+  admin:
+    username: gitea_admin
+    password: "r8sA8CPHD9!bt6d"
+    email: "admin@gitea.localhost.com"
+
+  config:
+    APP_NAME: "Gitea"
+    RUN_MODE: "prod"
+
+    server:
+      PROTOCOL: http
+      DOMAIN: gitea.localhost.com
+      ROOT_URL: "http://gitea.localhost.com:3000/"
+      SSH_DOMAIN: gitea.localhost.com
+      SSH_PORT: 22
+      DISABLE_SSH: false
+      START_SSH_SERVER: true
+      HTTP_PORT: 3000
+
+    database:
+      DB_TYPE: postgres
+      HOST: gitea-postgresql:5432
+      NAME: gitea
+      USER: gitea
+      PASSWD: gitea_password_123
+      SSL_MODE: disable
+
+    session:
+      PROVIDER: db
+
+    cache:
+      ADAPTER: memory
+
+    queue:
+      TYPE: level
+      PATH: data/queues
+

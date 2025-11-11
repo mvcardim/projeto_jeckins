@@ -7,6 +7,28 @@ pre:
 		--selector=app=metallb \
 		--timeout=300s
 	@kubectl apply -f manifests/
+fixmetallb:
+	@echo "Verificando se MetalLB já está instalado..."
+	@if kubectl get namespace metallb-system >/dev/null 2>&1; then \
+		echo "MetalLB já instalado, aplicando patch..."; \
+	else \
+		echo "Instalando MetalLB..."; \
+		if [ -f metallb-native.yaml ]; then \
+			echo "Usando arquivo local metallb-native.yaml"; \
+			kubectl apply -f metallb-native.yaml; \
+		else \
+			echo "Baixando metallb-native.yaml..."; \
+			curl -f -L -o metallb-native.yaml https://raw.githubusercontent.com/metallb/metallb/v0.14.3/config/manifests/metallb-native.yaml && \
+			kubectl apply -f metallb-native.yaml; \
+		fi; \
+		echo "Aguardando MetalLB iniciar..."; \
+		kubectl wait --namespace metallb-system --for=condition=ready pod --selector=component=controller --timeout=90s; \
+	fi
+	@echo "Configurando speaker para não rodar no control-plane..."
+	@kubectl patch daemonset speaker -n metallb-system --type='merge' -p='{"spec":{"template":{"spec":{"affinity":{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"node-role.kubernetes.io/control-plane","operator":"DoesNotExist"}]}]}}}}}}}' 2>/dev/null || true
+	@echo "Aplicando configuração do MetalLB..."
+	@kubectl apply -f metallb-config.yaml
+	@echo "MetalLB configurado com sucesso!"	
 
 helm:
 	@helmfile apply
@@ -20,11 +42,12 @@ destroy:
 	@kind delete clusters kind
 
 passwd:
+
 	@echo "JENKINS:"
 	@kubectl get secret -n jenkins jenkins -ojson | jq -r '.data."jenkins-admin-password"' | base64 -d
 	@echo ""
 	@echo "GITEA:"
-	@echo "r8sA8CPHD9!bt6d | jenkins: fv#4ChTvoBhtRc"
+	@echo "r8sA8CPHD9!bt6d | usuario: admin: wdMI3O3UQ7RoYCOdfRCU4r: usuario:jenkins RQ4CzHQgwLdgQRf
 	@echo "SONARQUBE:"
 	@echo "krE^NiQvTc@75G"
 	@echo "ARGOCD:"

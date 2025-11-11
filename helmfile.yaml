@@ -55,5 +55,13 @@ releases:
   version: 10.3.0
   values:
     - values/sonarqube/values.yaml
+    
+- name: imagepullsecret-patcher
+  namespace: imagepullsecret-patcher
+  createNamespace: true
+  chart: empathyco/imagepullsecret-patcher
+  version: 1.0.0
+  values:
+    - values/imagepullsecret-patcher/values.yaml
 
 
